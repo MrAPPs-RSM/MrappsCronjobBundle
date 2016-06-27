@@ -13,15 +13,15 @@ use Mrapps\BackendBundle\Annotation\Sidebar;
 use Mrapps\BackendBundle\Classes\Utils as BackendUtils;
 
 /**
- * @Route("panel/cron/gruppi")
- * @Sidebar("cron", label="Gestione Cronjob", visible=true, weight=1)
+ * @Route("panel/mrapps_cron/gruppi")
+ * @Sidebar("mrapps_cron", label="Gestione Cronjob", visible=true, weight=1)
  */
 class BackendCronGruppoController extends BaseBackendController
 {
     /**
-     * @Route("/list", name="app_backend_cron_gruppo_list")
+     * @Route("/list", name="mrapps_cronjob_backend_cron_gruppo_list")
      * @Method({"GET"})
-     * @Sidebar("list_gruppi", label="Lista Gruppi", parent="cron", visible=true, weight=1)
+     * @Sidebar("list_gruppi", label="Lista Gruppi", parent="mrapps_cron", visible=true, weight=1)
      */
     public function listAction(Request $request) {
         
@@ -42,7 +42,7 @@ class BackendCronGruppoController extends BaseBackendController
 
         //Briciole di pane
         $breadcrumb = array(
-            ['url' => $this->generateUrl('app_backend_cron_gruppo_list'), "name" => $pageTitle]
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_list'), "name" => $pageTitle]
         );
         
         return $this->forward('MrappsBackendBundle:Default:__list', array(
@@ -51,24 +51,24 @@ class BackendCronGruppoController extends BaseBackendController
             'tableColumns' => $tableColumns,
             'defaultSorting'  => $defaultSorting,
             'defaultFilter' => $defaultFilter,
-            'linkData' => $this->generateUrl('app_backend_cron_gruppo_data'),
-            'linkNew' => $this->generateUrl('app_backend_cron_gruppo_add'),
-            'linkEdit' => $this->generateUrl('app_backend_cron_gruppo_edit'),
-            'linkDelete' => $this->generateUrl('app_backend_cron_gruppo_delete'),
-            'linkOrder' => $this->generateUrl('app_backend_cron_gruppo_order'),
+            'linkData' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_data'),
+            'linkNew' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_add'),
+            'linkEdit' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_edit'),
+            'linkDelete' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_delete'),
+            'linkOrder' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_order'),
             'linkBreadcrumb' => ['type' => 'url', 'url' => $breadcrumb],
         ));
     }
     
     /**
-     * @Route("/data", name="app_backend_cron_gruppo_data")
+     * @Route("/data", name="mrapps_cronjob_backend_cron_gruppo_data")
      * @Method({"GET"})
      */
     public function dataAction(Request $request) {
         
         $em = $this->getDoctrine()->getManager();
         
-        $data = BackendUtils::getListResults($em, 'AppBundle:CronConfigGruppo', $request->get('count'), $request->get('page'), $request->get('filter'), $request->get('sorting'));
+        $data = BackendUtils::getListResults($em, 'MrappsCronjobBundle:CronConfigGruppo', $request->get('count'), $request->get('page'), $request->get('filter'), $request->get('sorting'));
         
         $output = array();
         foreach ($data as $gruppo) {
@@ -89,8 +89,8 @@ class BackendCronGruppoController extends BaseBackendController
     
     
     /**
-     * @Route("/add", name="app_backend_cron_gruppo_add")
-     * @Route("/edit/{id}", name="app_backend_cron_gruppo_edit")
+     * @Route("/add", name="mrapps_cronjob_backend_cron_gruppo_add")
+     * @Route("/edit/{id}", name="mrapps_cronjob_backend_cron_gruppo_edit")
      * @Method({"GET"})
      */
     public function editAction(Request $request, $id = null) {
@@ -106,7 +106,7 @@ class BackendCronGruppoController extends BaseBackendController
             'maxIterazioni' => null,
         );
         
-        $gruppo = $em->getRepository('AppBundle:CronConfigGruppo')->find(intval($id));
+        $gruppo = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo')->find(intval($id));
         if($gruppo !== null) {
             
             //EDIT
@@ -129,15 +129,15 @@ class BackendCronGruppoController extends BaseBackendController
         }
         
         $breadcrumb = array(
-            ['url' => $this->generateUrl('app_backend_cron_gruppo_list'), "name" => 'Lista gruppi chiamate Cronjob'],
-            ['url' => $this->generateUrl('app_backend_cron_gruppo_edit'), "name" => $pageTitle],
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_list'), "name" => 'Lista gruppi chiamate Cronjob'],
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_edit'), "name" => $pageTitle],
         );
 
         //Campi form
         $fields = array(
             array('type' => 'hidden', 'name' => 'id', 'value' => $form['id']),
             array('title' => 'Nome', 'type' => 'text', 'name' => 'nome', 'required' => true, 'value' => $form['nome']),
-            array('title' => 'Dipendenza', 'type' => 'select', 'name' => 'dipendenza', 'required' => false, 'url' => $this->generateUrl('app_backend_cron_gruppo_ajaxgetdipendenze'), 'filter_params' => $filterParams, 'value' => $form['dipendenza'], 'didascalia' => 'Se si specifica una dipendenza, le chiamate di questo gruppo non verranno eseguite fino a quando non sarà stato completato il gruppo specificato.'),
+            array('title' => 'Dipendenza', 'type' => 'select', 'name' => 'dipendenza', 'required' => false, 'url' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_ajaxgetdipendenze'), 'filter_params' => $filterParams, 'value' => $form['dipendenza'], 'didascalia' => 'Se si specifica una dipendenza, le chiamate di questo gruppo non verranno eseguite fino a quando non sarà stato completato il gruppo specificato.'),
             array('title' => 'Ora Min', 'type' => 'time', 'name' => 'oraMin', 'required' => false, 'value' => $form['oraMin'], 'didascalia' => "Se specificato, questo gruppo di chiamate verrà eseguito solo a partire da quest'ora."),
             array('title' => 'Ora Max', 'type' => 'time', 'name' => 'oraMax', 'required' => false, 'value' => $form['oraMax'], 'didascalia' => "Se specificato, questo gruppo di chiamate non verrà più eseguito se viene passata quest'ora."),
             array('title' => 'Max iterazioni', 'type' => 'number', 'name' => 'maxIterazioni', 'min' => 0, 'required' => false, 'value' => $form['maxIterazioni'], 'didascalia' => 'Numero massimo di iterazioni giornaliere di questo gruppo.'),
@@ -147,9 +147,9 @@ class BackendCronGruppoController extends BaseBackendController
             'request' => $request,
             'title' => $pageTitle,
             'fields'  => $fields,
-            'linkNew' => $this->generateUrl('app_backend_cron_gruppo_add'),
-            'linkEdit' => $this->generateUrl('app_backend_cron_gruppo_edit'),
-            'linkSave' => $this->generateUrl('app_backend_cron_gruppo_save'),
+            'linkNew' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_add'),
+            'linkEdit' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_edit'),
+            'linkSave' => $this->generateUrl('mrapps_cronjob_backend_cron_gruppo_save'),
             'create' => false,
             'edit' => $isEdit,
             'linkBreadcrumb' => ['type' => 'url', 'url' => $breadcrumb],
@@ -158,7 +158,7 @@ class BackendCronGruppoController extends BaseBackendController
     }
     
     /**
-     * @Route("/ajax_getdipendenze", name="app_backend_cron_gruppo_ajaxgetdipendenze")
+     * @Route("/ajax_getdipendenze", name="mrapps_cronjob_backend_cron_gruppo_ajaxgetdipendenze")
      * @Method({"GET"})
      */
     public function ajaxgetdipendenzeAction(Request $request) {
@@ -167,7 +167,7 @@ class BackendCronGruppoController extends BaseBackendController
         $id = intval($request->get('id'));
         $gruppoId = intval($request->get('gruppo'));
         
-        $repo = $em->getRepository('AppBundle:CronConfigGruppo');
+        $repo = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo');
         
         if($id > 0) {
             
@@ -178,7 +178,7 @@ class BackendCronGruppoController extends BaseBackendController
             
             $gruppi = $em->createQuery("
                 SELECT ccg
-                FROM AppBundle:CronConfigGruppo ccg
+                FROM MrappsCronjobBundle:CronConfigGruppo ccg
                 WHERE ccg.id != :gruppo_id
                 ORDER BY ccg.weight ASC
             ")->setParameters(array('gruppo_id' => $gruppoId))->execute();
@@ -193,7 +193,7 @@ class BackendCronGruppoController extends BaseBackendController
     }
     
     /**
-     * @Route("/save/", name="app_backend_cron_gruppo_save")
+     * @Route("/save/", name="mrapps_cronjob_backend_cron_gruppo_save")
      * @Method({"POST"})
      */
     public function saveAction(Request $request) {
@@ -202,7 +202,7 @@ class BackendCronGruppoController extends BaseBackendController
         $em = $this->getDoctrine()->getManager();
         
         //Salvataggio gruppo
-        $response = $em->getRepository('AppBundle:CronConfigGruppo')->editConfigGruppoForm($params);
+        $response = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo')->editConfigGruppoForm($params);
         
         $success = $response['success'];
         $message = $response['message'];
@@ -212,7 +212,7 @@ class BackendCronGruppoController extends BaseBackendController
     }
     
     /**
-     * @Route("/order", name="app_backend_cron_gruppo_order")
+     * @Route("/order", name="mrapps_cronjob_backend_cron_gruppo_order")
      * @Method({"POST"})
      */
     public function orderAction(Request $request) {
@@ -225,7 +225,7 @@ class BackendCronGruppoController extends BaseBackendController
         $count = (isset($params['count'])) ? intval($params['count']) : 10;
         
         foreach ($dati as $key => $value) {
-            $object = $em->getRepository('AppBundle:CronConfigGruppo')->find($value['id']);
+            $object = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo')->find($value['id']);
             $object->setWeight($key+$count*$page);
             $em->persist($object);
         }
@@ -236,7 +236,7 @@ class BackendCronGruppoController extends BaseBackendController
     }
     
     /**
-     * @Route("/delete", name="app_backend_cron_gruppo_delete")
+     * @Route("/delete", name="mrapps_cronjob_backend_cron_gruppo_delete")
      * @Method({"POST"})
      */
     public function deleteAction(Request $request) {
@@ -246,9 +246,9 @@ class BackendCronGruppoController extends BaseBackendController
         $params = json_decode($request->getContent(), true);
         $id = (isset($params['id'])) ? intval($params['id']) : 1;
         
-        $gruppo = $em->getRepository('AppBundle:CronConfigGruppo')->find($id);
+        $gruppo = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo')->find($id);
         
-        $result = $em->getRepository('AppBundle:CronConfigGruppo')->deleteGruppo($gruppo);
+        $result = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo')->deleteGruppo($gruppo);
         $success = $result['success'];
         $message = $result['message'];
 

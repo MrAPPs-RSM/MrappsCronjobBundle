@@ -1,12 +1,12 @@
 <?php
 
-namespace AppBundle\Tests\Entity;
+namespace Mrapps\CronjobBundle\Tests\Entity;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-use AppBundle\Services\CronjobHandler;
-use AppBundle\Entity\CronLogGruppo;
-use AppBundle\Entity\CronConfigGruppo;
+use Mrapps\CronjobBundle\Services\CronjobHandler;
+use Mrapps\CronjobBundle\Entity\CronLogGruppo;
+use Mrapps\CronjobBundle\Entity\CronConfigGruppo;
 
 class CronjobHandlerTest extends WebTestCase
 {

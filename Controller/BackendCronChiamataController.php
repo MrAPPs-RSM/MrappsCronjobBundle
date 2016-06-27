@@ -14,14 +14,14 @@ use Mrapps\BackendBundle\Classes\Utils as BackendUtils;
 use Mrapps\CronjobBundle\Entity\CronConfigChiamata;
 
 /**
- * @Route("panel/cron/chiamate")
+ * @Route("panel/mrapps_cron/chiamate")
  */
 class BackendCronChiamataController extends BaseBackendController
 {
     /**
-     * @Route("/list", name="app_backend_cron_chiamata_list")
+     * @Route("/list", name="mrapps_cronjob_backend_cron_chiamata_list")
      * @Method({"GET"})
-     * @Sidebar("list_chiamate", label="Lista Chiamate", parent="cron", visible=true, weight=2)
+     * @Sidebar("list_chiamate", label="Lista Chiamate", parent="mrapps_cron", visible=true, weight=2)
      */
     public function listAction(Request $request) {
         
@@ -43,7 +43,7 @@ class BackendCronChiamataController extends BaseBackendController
 
         //Briciole di pane
         $breadcrumb = array(
-            ['url' => $this->generateUrl('app_backend_cron_chiamata_list'), "name" => $pageTitle]
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_list'), "name" => $pageTitle]
         );
         
         return $this->forward('MrappsBackendBundle:Default:__list', array(
@@ -52,24 +52,24 @@ class BackendCronChiamataController extends BaseBackendController
             'tableColumns' => $tableColumns,
             'defaultSorting'  => $defaultSorting,
             'defaultFilter' => $defaultFilter,
-            'linkData' => $this->generateUrl('app_backend_cron_chiamata_data'),
-            'linkNew' => $this->generateUrl('app_backend_cron_chiamata_add'),
-            'linkEdit' => $this->generateUrl('app_backend_cron_chiamata_edit'),
-            'linkDelete' => $this->generateUrl('app_backend_cron_chiamata_delete'),
-            'linkOrder' => $this->generateUrl('app_backend_cron_chiamata_order'),
+            'linkData' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_data'),
+            'linkNew' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_add'),
+            'linkEdit' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_edit'),
+            'linkDelete' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_delete'),
+            'linkOrder' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_order'),
             'linkBreadcrumb' => ['type' => 'url', 'url' => $breadcrumb],
         ));
     }
     
     /**
-     * @Route("/data", name="app_backend_cron_chiamata_data")
+     * @Route("/data", name="mrapps_cronjob_backend_cron_chiamata_data")
      * @Method({"GET"})
      */
     public function dataAction(Request $request) {
         
         $em = $this->getDoctrine()->getManager();
         
-        $data = BackendUtils::getListResults($em, 'AppBundle:CronConfigChiamata', $request->get('count'), $request->get('page'), $request->get('filter'), $request->get('sorting'));
+        $data = BackendUtils::getListResults($em, 'MrappsCronjobBundle:CronConfigChiamata', $request->get('count'), $request->get('page'), $request->get('filter'), $request->get('sorting'));
         
         $output = array();
         
@@ -92,8 +92,8 @@ class BackendCronChiamataController extends BaseBackendController
     
     
     /**
-     * @Route("/add", name="app_backend_cron_chiamata_add")
-     * @Route("/edit/{id}", name="app_backend_cron_chiamata_edit")
+     * @Route("/add", name="mrapps_cronjob_backend_cron_chiamata_add")
+     * @Route("/edit/{id}", name="mrapps_cronjob_backend_cron_chiamata_edit")
      * @Method({"GET"})
      */
     public function editAction(Request $request, $id = null) {
@@ -110,8 +110,8 @@ class BackendCronChiamataController extends BaseBackendController
             'max_tentativi' => 3,
         );
         
-        /* @var $chiamata \AppBundle\Entity\CronConfigChiamata */
-        $chiamata = $em->getRepository('AppBundle:CronConfigChiamata')->find(intval($id));
+        /* @var $chiamata \Mrapps\CronjobBundle\Entity\CronConfigChiamata */
+        $chiamata = $em->getRepository('MrappsCronjobBundle:CronConfigChiamata')->find(intval($id));
         if($chiamata !== null) {
             
             //EDIT
@@ -133,15 +133,15 @@ class BackendCronChiamataController extends BaseBackendController
         }
         
         $breadcrumb = array(
-            ['url' => $this->generateUrl('app_backend_cron_chiamata_list'), "name" => 'Lista chiamate Cronjob'],
-            ['url' => $this->generateUrl('app_backend_cron_chiamata_edit'), "name" => $pageTitle],
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_list'), "name" => 'Lista chiamate Cronjob'],
+            ['url' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_edit'), "name" => $pageTitle],
         );
 
         //Campi form
         $fields = array(
             array('type' => 'hidden', 'name' => 'id', 'value' => $form['id']),
-            array('title' => 'Gruppo', 'type' => 'select', 'name' => 'gruppo', 'required' => true, 'url' => $this->generateUrl('app_backend_cron_chiamata_ajaxgetgruppi'), 'value' => $form['gruppo']),
-            array('title' => 'Tipo', 'type' => 'select', 'name' => 'tipo', 'required' => true, 'url' => $this->generateUrl('app_backend_cron_chiamata_ajaxgettipi'), 'value' => $form['tipo']),
+            array('title' => 'Gruppo', 'type' => 'select', 'name' => 'gruppo', 'required' => true, 'url' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_ajaxgetgruppi'), 'value' => $form['gruppo']),
+            array('title' => 'Tipo', 'type' => 'select', 'name' => 'tipo', 'required' => true, 'url' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_ajaxgettipi'), 'value' => $form['tipo']),
             array('title' => 'Endpoint', 'type' => 'text', 'name' => 'endpoint', 'required' => true, 'value' => $form['endpoint'], 'didascalia' => 'Specificare l\'endpoint (Classe completa di Namespace oppure URL). La classe deve implementare CronjobInterface.'),
             array('title' => 'Parametri', 'type' => 'text', 'name' => 'parametri', 'required' => false, 'value' => $form['parametri'], 'didascalia' => 'es. myparam=test&otherparam=test2'),
             array('title' => 'Descrizione', 'type' => 'text', 'name' => 'descrizione', 'required' => false, 'value' => $form['descrizione']),
@@ -152,9 +152,9 @@ class BackendCronChiamataController extends BaseBackendController
             'request' => $request,
             'title' => $pageTitle,
             'fields'  => $fields,
-            'linkNew' => $this->generateUrl('app_backend_cron_chiamata_add'),
-            'linkEdit' => $this->generateUrl('app_backend_cron_chiamata_edit'),
-            'linkSave' => $this->generateUrl('app_backend_cron_chiamata_save'),
+            'linkNew' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_add'),
+            'linkEdit' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_edit'),
+            'linkSave' => $this->generateUrl('mrapps_cronjob_backend_cron_chiamata_save'),
             'create' => false,
             'edit' => $isEdit,
             'linkBreadcrumb' => ['type' => 'url', 'url' => $breadcrumb],
@@ -163,7 +163,7 @@ class BackendCronChiamataController extends BaseBackendController
     }
     
     /**
-     * @Route("/ajax_getgruppi", name="app_backend_cron_chiamata_ajaxgetgruppi")
+     * @Route("/ajax_getgruppi", name="mrapps_cronjob_backend_cron_chiamata_ajaxgetgruppi")
      * @Method({"GET"})
      */
     public function ajaxgetgruppiAction(Request $request) {
@@ -171,7 +171,7 @@ class BackendCronChiamataController extends BaseBackendController
         $em = $this->getDoctrine()->getManager();
         $id = intval($request->get('id'));
         
-        $repo = $em->getRepository('AppBundle:CronConfigGruppo');
+        $repo = $em->getRepository('MrappsCronjobBundle:CronConfigGruppo');
         
         if($id > 0) {
             
@@ -192,7 +192,7 @@ class BackendCronChiamataController extends BaseBackendController
     }
     
     /**
-     * @Route("/ajax_gettipi", name="app_backend_cron_chiamata_ajaxgettipi")
+     * @Route("/ajax_gettipi", name="mrapps_cronjob_backend_cron_chiamata_ajaxgettipi")
      * @Method({"GET"})
      */
     public function ajaxgettipiAction(Request $request) {
@@ -215,7 +215,7 @@ class BackendCronChiamataController extends BaseBackendController
     
     
     /**
-     * @Route("/save/", name="app_backend_cron_chiamata_save")
+     * @Route("/save/", name="mrapps_cronjob_backend_cron_chiamata_save")
      * @Method({"POST"})
      */
     public function saveAction(Request $request) {
@@ -224,7 +224,7 @@ class BackendCronChiamataController extends BaseBackendController
         $em = $this->getDoctrine()->getManager();
         
         //Salvataggio chiamata
-        $response = $em->getRepository('AppBundle:CronConfigChiamata')->editConfigChiamataForm($params);
+        $response = $em->getRepository('MrappsCronjobBundle:CronConfigChiamata')->editConfigChiamataForm($params);
         
         $success = $response['success'];
         $message = $response['message'];
@@ -234,7 +234,7 @@ class BackendCronChiamataController extends BaseBackendController
     }
     
     /**
-     * @Route("/order", name="app_backend_cron_chiamata_order")
+     * @Route("/order", name="mrapps_cronjob_backend_cron_chiamata_order")
      * @Method({"POST"})
      */
     public function orderAction(Request $request) {
@@ -247,7 +247,7 @@ class BackendCronChiamataController extends BaseBackendController
         $count = (isset($params['count'])) ? intval($params['count']) : 10;
         
         foreach ($dati as $key => $value) {
-            $object = $em->getRepository('AppBundle:CronConfigChiamata')->find($value['id']);
+            $object = $em->getRepository('MrappsCronjobBundle:CronConfigChiamata')->find($value['id']);
             $object->setWeight($key+$count*$page);
             $em->persist($object);
         }
@@ -258,7 +258,7 @@ class BackendCronChiamataController extends BaseBackendController
     }
     
     /**
-     * @Route("/delete", name="app_backend_cron_chiamata_delete")
+     * @Route("/delete", name="mrapps_cronjob_backend_cron_chiamata_delete")
      * @Method({"POST"})
      */
     public function deleteAction(Request $request) {
@@ -268,7 +268,7 @@ class BackendCronChiamataController extends BaseBackendController
         $params = json_decode($request->getContent(), true);
         $id = (isset($params['id'])) ? intval($params['id']) : 1;
         
-        $chiamata = $em->getRepository('AppBundle:CronConfigChiamata')->find($id);
+        $chiamata = $em->getRepository('MrappsCronjobBundle:CronConfigChiamata')->find($id);
         $em->remove($chiamata);
         $em->flush();
         

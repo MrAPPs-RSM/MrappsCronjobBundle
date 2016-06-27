@@ -9,12 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route("/cronjob")
+ * @Route("/mrapps_cron")
  */
 class CronjobController extends Controller
 {
     /**
-     * @Route("/nextstep",name="cron_nextstep")
+     * @Route("/nextstep",name="mrapps_cron_nextstep")
      */
     public function nextstepAction(Request $request)
     {
@@ -49,16 +49,5 @@ class CronjobController extends Controller
         }
         
         return new JsonResponse($response);
-    }
-    
-    /**
-     * @Route("/test",name="cron_test")
-     */
-    public function testAction(Request $request) {
-        $number = mt_rand(1, 99999);
-        $success = ($number%2 == 1);
-        $output = 'Numero estratto: '.$number;
-        
-        return new Response(new \Mrapps\CronjobBundle\Model\CronjobResponse($success, $output, array('numero' => $number)));
     }
 }
