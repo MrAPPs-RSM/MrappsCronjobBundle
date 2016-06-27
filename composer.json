@@ -17,7 +17,7 @@
   "require": {
     "php": ">=5.4",
     "symfony/symfony": ">=2.6",
-    "mrapps/backendbundle": "~1.3"
+    "mrapps/backendbundle": "*"
   },
   "autoload": {
     "psr-0": {
