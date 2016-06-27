@@ -1,5 +1,4 @@
 services:
-
     mrapps.cronjob:
         class: Mrapps\CronjobBundle\Services\CronjobHandler
         arguments:  [@service_container]

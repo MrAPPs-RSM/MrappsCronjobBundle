@@ -8,7 +8,7 @@ use Mrapps\BackendBundle\Entity\Base;
 /**
  * CronConfigGruppo
  *
- * @ORM\Table(name="sml_cron_config_gruppo")
+ * @ORM\Table(name="mrapps_cronjob_config_gruppo")
  * @ORM\Entity(repositoryClass="Mrapps\CronjobBundle\Repository\CronConfigGruppoRepository")
  */
 class CronConfigGruppo extends Base

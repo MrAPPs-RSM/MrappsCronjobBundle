@@ -1,3 +1,0 @@
-mrapps_cronjob_homepage:
-    path:     /
-    defaults: { _controller: MrappsCronjobBundle:Default:index }

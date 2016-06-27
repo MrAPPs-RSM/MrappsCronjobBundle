@@ -14,7 +14,7 @@ use Mrapps\BackendBundle\Classes\Utils as BackendUtils;
 use Mrapps\CronjobBundle\Entity\CronConfigChiamata;
 
 /**
- * @Route("panel/mrapps_cron/chiamate")
+ * @Route("panel/mrapps_cronjob/chiamate")
  */
 class BackendCronChiamataController extends BaseBackendController
 {

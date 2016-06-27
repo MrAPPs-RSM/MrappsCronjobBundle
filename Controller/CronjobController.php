@@ -9,12 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @Route("/mrapps_cron")
+ * @Route("/mrapps_cronjob")
  */
 class CronjobController extends Controller
 {
     /**
-     * @Route("/nextstep",name="mrapps_cron_nextstep")
+     * @Route("/nextstep",name="mrapps_cronjob_nextstep")
      */
     public function nextstepAction(Request $request)
     {

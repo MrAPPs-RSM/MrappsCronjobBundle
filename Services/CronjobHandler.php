@@ -39,7 +39,7 @@ class CronjobHandler
         $nowString = $now->format('Y-m-d').' 00:00:00';
         $records = $this->em->getConnection()->executeQuery('
             SELECT DISTINCT gruppo_id
-            FROM sml_cron_log_gruppo
+            FROM mrapps_cronjob_log_gruppo
             WHERE created_at >= "'.$nowString.'"
             ORDER BY created_at DESC
         ')->fetchAll();

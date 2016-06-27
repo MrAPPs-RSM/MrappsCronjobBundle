@@ -8,7 +8,7 @@ use Mrapps\BackendBundle\Entity\Base;
 /**
  * CronConfigChiamata
  *
- * @ORM\Table(name="sml_cron_config_chiamata")
+ * @ORM\Table(name="mrapps_cronjob_config_chiamata")
  * @ORM\Entity(repositoryClass="Mrapps\CronjobBundle\Repository\CronConfigChiamataRepository")
  */
 class CronConfigChiamata extends Base

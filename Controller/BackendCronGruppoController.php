@@ -13,7 +13,7 @@ use Mrapps\BackendBundle\Annotation\Sidebar;
 use Mrapps\BackendBundle\Classes\Utils as BackendUtils;
 
 /**
- * @Route("panel/mrapps_cron/gruppi")
+ * @Route("panel/mrapps_cronjob/gruppi")
  * @Sidebar("mrapps_cron", label="Gestione Cronjob", visible=true, weight=1)
  */
 class BackendCronGruppoController extends BaseBackendController
