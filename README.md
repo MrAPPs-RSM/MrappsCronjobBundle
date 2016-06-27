@@ -48,6 +48,11 @@ mrapps_cronjob: ~
 ## Utilizzo
 
 
+Aggiornamento database:
+```!/bin/bash
+app/console doctrine:schema:update --force
+```
+
 Generazione delle voci nella sidebar:
 ```!/bin/bash
 app/console mrapps:backend:buildsidebar
