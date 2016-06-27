@@ -18,7 +18,7 @@ class CronjobController extends Controller
      */
     public function nextstepAction(Request $request)
     {
-        $result = $this->container->get('smoll.handler.cronjob')->eseguiProssimaChiamata();
+        $result = $this->container->get('mrapps.cronjob')->eseguiProssimaChiamata();
         
         $success = $result['success'];
         $output = $result['output'];
