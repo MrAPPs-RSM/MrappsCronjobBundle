@@ -368,143 +368,156 @@ class CronjobHandler
         
         return ($tentativo >= $maxTentativi);
     }
-    
+
     /**
      * Restituisce la prima chiamata per il gruppo passato come parametro
-     * 
+     *
      * @param CronConfigGruppo $gruppo
      * @return CronConfigChiamata
      */
     public function getPrimaChiamataPerGruppo(CronConfigGruppo $gruppo) {
-        
+
         $params = array('gruppo' => $gruppo);
-        
+
         $primaChiamata = $this->em->createQuery("
             SELECT ccc
             FROM MrappsCronjobBundle:CronConfigChiamata ccc
             WHERE ccc.gruppo = :gruppo
             ORDER BY ccc.weight ASC
         ")->setMaxResults(1)->setParameters($params)->getOneOrNullResult();
-        
+
         return $primaChiamata;
     }
-    
+
     /**
      * Restituisce la prossima chiamata da eseguire
-     * 
+     *
+     * @param CronConfigGruppo $gruppoCorrente
      * @return CronConfigChiamata
      */
-    public function getProssimaChiamata() {
-        
+    public function getProssimaChiamata(CronConfigGruppo $gruppoCorrente) {
+
         $prossimaChiamata = null;
         $tentativo = 1;
         $ultimoLogGruppo = null;
-        
-        //Gruppo in esecuzione al momento
-        
-        /* @var $gruppoCorrente \Mrapps\CronjobBundle\Entity\CronConfigGruppo */
-        $gruppoCorrente = $this->getGruppoCorrente();
-        
-        if($gruppoCorrente !== null) {
-            
-            //Ultima chiamata loggata
-            
-            /* @var $ultimoLogChiamata \Mrapps\CronjobBundle\Entity\CronLogChiamata */
-            $ultimoLogChiamata = $this->getUltimoLogChiamata();
-        
-            if($ultimoLogChiamata !== null) {
-                
-                //Gruppo dell'ultima chiamata eseguita
-                
-                /* @var $gruppoUltimaChiamata \Mrapps\CronjobBundle\Entity\CronConfigGruppo */
-                $gruppoUltimaChiamata = $ultimoLogChiamata->getChiamata()->getGruppo();
-                
-                //Il gruppo dell'ultima chiamata corrisponde al gruppo in esecuzione al momento?
-                if($gruppoUltimaChiamata->getId() == $gruppoCorrente->getId()) {
-                    
-                    //Ultimo Log Gruppo
-                    $ultimoLogGruppo = $ultimoLogChiamata->getLogGruppo();
-                    
-                    //Se Log Data Inizio è diverso da NULL, la chiamata è ancora in corso e non restituisco niente
-                    if($ultimoLogChiamata->getLogDataInizio() == null) {
-                        
-                        if($ultimoLogChiamata->getSuccess() == true) {
-                            
-                            //Prossima chiamata nel gruppo
-                            $datiChiamataSuccessiva = $this->getChiamataSuccessiva($ultimoLogChiamata->getChiamata());
-                            
-                            $prossimaChiamata = $datiChiamataSuccessiva['prossima_chiamata'];
-                            $completaLogGruppo = $datiChiamataSuccessiva['completa_log_gruppo'];
-                            
-                            //Siamo arrivati alla fine del gruppo?
-                            if($completaLogGruppo) {
-                                $this->completaLogGruppo($ultimoLogChiamata->getLogGruppo());
-                                $ultimoLogGruppo = $this->scriviLogGruppo($gruppoCorrente);
-                            }
-                            
-                        }else {
-                            
-                            //Posso procedere con i tentativi o sono arrivato alla fine?
-                            $numeroTentativiRaggiunto = $this->checkNumeroTentativiRaggiunto($ultimoLogChiamata);
-                            
-                            if($numeroTentativiRaggiunto == false) {
-                                
-                                //Ritento la stessa chiamata
-                                $prossimaChiamata = $ultimoLogChiamata->getChiamata();
-                                $tentativo = $ultimoLogChiamata->getTentativo()+1;
-                                
-                            }else {
-                                
-                                /**
-                                 * @TODO EMERGENZA
-                                 * Se la chiamata arriva qui c'è un problema grave e il meccanismo dovrebbe interrompersi.
-                                 * Probabilmente bisognerebbe inviare una mail a noi stessi e vedere se fare altro (es. mettere il sito in manutenzione?)
-                                 */
-                                
-                                $prossimaChiamata = null;
-                                $tentativo = 0;
-                                $ultimoLogGruppo = null;
-                            }
-                        }
-                    }
-                    
-                }else {
-                    //Se il gruppo corrente è diverso dal gruppo dell'ultima chiamata -> prendo la prima chiamata del gruppo corrente
-                    $prossimaChiamata = $this->getPrimaChiamataPerGruppo($gruppoCorrente);
-                    
-                    //Scrittura Log gruppo
-                    $ultimoLogGruppo = $this->scriviLogGruppo($gruppoCorrente);
-                }
 
-            }else {
-                
-                //Se non ci sono chiamate loggate -> prendo la prima chiamata del gruppo corrente
-                $prossimaChiamata = $this->getPrimaChiamataPerGruppo($gruppoCorrente);
-                
-                //Scrittura Log gruppo
+        //Ultima chiamata loggata
+
+        /* @var $ultimoLogChiamata \Mrapps\CronjobBundle\Entity\CronLogChiamata */
+        $ultimoLogChiamata = $this->getUltimoLogChiamata();
+
+        if($ultimoLogChiamata == null) {
+            //Se non ci sono chiamate loggate -> prendo la prima chiamata del gruppo corrente
+            $prossimaChiamata = $this->getPrimaChiamataPerGruppo($gruppoCorrente);
+
+            //Scrittura Log gruppo
+            $ultimoLogGruppo = $this->scriviLogGruppo($gruppoCorrente);
+
+            return array(
+                'prossima_chiamata' => $prossimaChiamata,
+                'tentativo' => $tentativo,
+                'ultimo_log_gruppo' => $ultimoLogGruppo,
+            );
+        }
+
+        //Gruppo dell'ultima chiamata eseguita
+
+        /* @var $gruppoUltimaChiamata \Mrapps\CronjobBundle\Entity\CronConfigGruppo */
+        $gruppoUltimaChiamata = $ultimoLogChiamata->getChiamata()->getGruppo();
+
+        //Il gruppo dell'ultima chiamata corrisponde al gruppo in esecuzione al momento?
+        if($gruppoUltimaChiamata->getId() !== $gruppoCorrente->getId()) {
+
+            //Se il gruppo corrente è diverso dal gruppo dell'ultima chiamata -> prendo la prima chiamata del gruppo corrente
+            $prossimaChiamata = $this->getPrimaChiamataPerGruppo($gruppoCorrente);
+
+            //Scrittura Log gruppo
+            $ultimoLogGruppo = $this->scriviLogGruppo($gruppoCorrente);
+
+            return array(
+                'prossima_chiamata' => $prossimaChiamata,
+                'tentativo' => $tentativo,
+                'ultimo_log_gruppo' => $ultimoLogGruppo,
+            );
+
+        }
+
+        //Ultimo Log Gruppo
+        $ultimoLogGruppo = $ultimoLogChiamata->getLogGruppo();
+
+        //Se Log Data Inizio è diverso da NULL, la chiamata è ancora in corso e non restituisco niente
+        if($ultimoLogChiamata->getLogDataInizio() !== null) {
+            return array(
+                'prossima_chiamata' => $prossimaChiamata,
+                'tentativo' => $tentativo,
+                'ultimo_log_gruppo' => $ultimoLogGruppo,
+            );
+        }
+
+        if($ultimoLogChiamata->getSuccess() == true) {
+
+            //Prossima chiamata nel gruppo
+            $datiChiamataSuccessiva = $this->getChiamataSuccessiva($ultimoLogChiamata->getChiamata());
+
+            $prossimaChiamata = $datiChiamataSuccessiva['prossima_chiamata'];
+            $completaLogGruppo = $datiChiamataSuccessiva['completa_log_gruppo'];
+
+            //Siamo arrivati alla fine del gruppo?
+            if($completaLogGruppo) {
+                $this->completaLogGruppo($ultimoLogChiamata->getLogGruppo());
                 $ultimoLogGruppo = $this->scriviLogGruppo($gruppoCorrente);
             }
+
+            return array(
+                'prossima_chiamata' => $prossimaChiamata,
+                'tentativo' => $tentativo,
+                'ultimo_log_gruppo' => $ultimoLogGruppo,
+            );
+
         }
-        
+
+        //Posso procedere con i tentativi o sono arrivato alla fine?
+        $numeroTentativiRaggiunto = $this->checkNumeroTentativiRaggiunto($ultimoLogChiamata);
+
+        if($numeroTentativiRaggiunto == false) {
+
+            //Ritento la stessa chiamata
+            $prossimaChiamata = $ultimoLogChiamata->getChiamata();
+            $tentativo = $ultimoLogChiamata->getTentativo()+1;
+
+        }else {
+
+            /**
+             * @TODO EMERGENZA
+             * Se la chiamata arriva qui c'è un problema grave e il meccanismo dovrebbe interrompersi.
+             * Probabilmente bisognerebbe inviare una mail a noi stessi e vedere se fare altro (es. mettere il sito in manutenzione?)
+             */
+
+            $prossimaChiamata = null;
+            $tentativo = 0;
+            $ultimoLogGruppo = null;
+        }
+
+
         return array(
             'prossima_chiamata' => $prossimaChiamata,
             'tentativo' => $tentativo,
             'ultimo_log_gruppo' => $ultimoLogGruppo,
         );
     }
-    
+
     /**
      * Scrivi log per la chiamata corrente
-     * 
+     *
      * @param CronConfigChiamata $chiamata
      * @param int $tentativo
      * @param CronLogGruppo $logGruppo
      * @return CronLogChiamata
      */
     public function scriviLogChiamata(CronConfigChiamata $chiamata, $tentativo, CronLogGruppo $logGruppo = null) {
-        
+
         $now = new \DateTime();
-        
+
         $logChiamata = new CronLogChiamata();
         $logChiamata->setChiamata($chiamata);
         $logChiamata->setTentativo($tentativo);
@@ -513,35 +526,35 @@ class CronjobHandler
         $logChiamata->setOutput(null);
         $logChiamata->setSuccess(null);
         $logChiamata->setVisible(true);
-        
+
         $this->em->persist($logChiamata);
         $this->em->flush();
-        
+
         return $logChiamata;
     }
-    
+
     /**
      * Completa la chiamata corrente
-     * 
+     *
      * @param CronLogChiamata $logChiamata
      * @param bool $success
      * @param string $output
      */
     public function completaLogChiamata(CronLogChiamata $logChiamata, $success, $output) {
-        
+
         $logChiamata->setLogDataInizio(null);
         $logChiamata->setSuccess($success);
         $logChiamata->setOutput($output);
-        
+
         $this->em->persist($logChiamata);
         $this->em->flush();
     }
-    
+
     //==========================================================================================
-    
+
     /**
      * Esecuzione di una chiamata di tipo CLASSE
-     * 
+     *
      * @param CronConfigChiamata $prossimaChiamata
      * @param type $tentativo
      * @param CronLogGruppo $ultimoLogGruppo
@@ -549,7 +562,7 @@ class CronjobHandler
      * @return array
      */
     public function eseguiChiamataClasse(CronConfigChiamata $prossimaChiamata, $tentativo, CronLogGruppo $ultimoLogGruppo = null) {
-        
+
         //Classe da eseguire
         $classe = str_replace('\\\\', '\\', $prossimaChiamata->getEndpoint());
 
@@ -572,14 +585,14 @@ class CronjobHandler
                 $logChiamata = $this->scriviLogChiamata($prossimaChiamata, $tentativo, $ultimoLogGruppo);
 
                 //Esegue la chiamata e attende l'output
-                
+
                 /* @var $cronResponse \Mrapps\CronjobBundle\Model\CronjobResponse */
                 $cronResponse = $object->run($this->container, $parametri);
                 if(is_a($cronResponse, 'Mrapps\CronjobBundle\Model\CronjobResponse')) {
-                    
+
                     $success = $cronResponse->isSuccessful();
                     $output = $cronResponse->getResponse();
-                    
+
                 }else {
                     $success = false;
                     $output = 'La classe deve ritornare un oggetto di tipo CronjobResponse.';
@@ -597,17 +610,17 @@ class CronjobHandler
             $success = false;
             $output = 'INTERNAL: la classe specificata non esiste.';
         }
-        
+
         return array(
             'success' => $success,
             'output' => $output,
         );
     }
-    
-    
+
+
     /**
      * Esecuzione di una chiamata di tipo URL
-     * 
+     *
      * @param CronConfigChiamata $prossimaChiamata
      * @param type $tentativo
      * @param CronLogGruppo $ultimoLogGruppo
@@ -615,21 +628,21 @@ class CronjobHandler
      * @return array
      */
     public function eseguiChiamataUrl(CronConfigChiamata $prossimaChiamata, $tentativo, CronLogGruppo $ultimoLogGruppo = null) {
-        
+
         $url = $prossimaChiamata->getEndpoint();
-        
+
         //Parametri aggiuntivi
         $parametri = array();
         parse_str($prossimaChiamata->getParametri(), $parametri);
-        
+
         if(count($parametri) > 0) {
             $queryString = http_build_query($parametri);
             $url .= $queryString;
         }
-        
+
         //Inizio log
         $logChiamata = $this->scriviLogChiamata($prossimaChiamata, $tentativo, $ultimoLogGruppo);
-        
+
         //Chiamata CURL
         $curl_handle = curl_init();
         curl_setopt($curl_handle, CURLOPT_URL, $url);
@@ -644,31 +657,38 @@ class CronjobHandler
             $output = $result;
         }
         curl_close($curl_handle);
-        
+
         //Fine log
         $this->completaLogChiamata($logChiamata, $success, $output);
-        
+
         return array(
             'success' => $success,
             'output' => $output,
         );
     }
-    
+
     /**
      * Esecuzione della prossima chiamata
-     * 
+     *
      * @return type
      */
     public function eseguiProssimaChiamata() {
-        
+
         $success = false;
         $output = 'INTERNAL: errore sconosciuto.';
         $logChiamata = null;
-        
+
         try {
-            
-            $dati = $this->getProssimaChiamata();
-        
+
+            /* @var $gruppoCorrente \Mrapps\CronjobBundle\Entity\CronConfigGruppo */
+            $gruppoCorrente = $this->getGruppoCorrente();
+
+            if($gruppoCorrente == null) {
+                return array('success' => true, 'output' => 'INTERNAL: nessun gruppo da eseguire.', 'log_chiamata' => null);
+            }
+
+            $dati = $this->getProssimaChiamata($gruppoCorrente);
+
             /* @var $prossimaChiamata \Mrapps\CronjobBundle\Entity\CronConfigChiamata */
             $prossimaChiamata = $dati['prossima_chiamata'];
 
@@ -678,7 +698,7 @@ class CronjobHandler
             $ultimoLogGruppo = $dati['ultimo_log_gruppo'];
 
             if($prossimaChiamata !== null) {
-                
+
                 switch($prossimaChiamata->getTipoChiamata()) {
                     case 'CLASSE':
                         $result = $this->eseguiChiamataClasse($prossimaChiamata, $tentativo, $ultimoLogGruppo);
@@ -690,18 +710,18 @@ class CronjobHandler
                         $result = null;
                         break;
                 }
-                
+
                 if($result !== null) {
                     $success = $result['success'];
                     $output = $result['output'];
                 }
             }
-            
+
         } catch (\Exception $ex) {
             $success = false;
             $output = 'INTERNAL: '.$ex->getMessage();
         }
-        
+
         return array('success' => $success, 'output' => $output, 'log_chiamata' => $logChiamata);
     }
 }
